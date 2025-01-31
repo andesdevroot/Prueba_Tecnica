@@ -121,7 +121,9 @@ Cada Lambda procesadora maneja un estado diferente.
 Una función Lambda para la parte de API (crear / actualizar órdenes).
 Varias funciones Lambda para el consumo de las colas (cada estado se procesa por separado).
 
-### 3. Decisiones Técnicas
+### 4. Estructura de Archivos
+
+Carpeta raíz del proyecto:-
 
 ```plaintext
 
@@ -133,11 +135,24 @@ technical-test
 └── tests
     └── test_handler.py  # Pruebas unitarias
 
+```
+### 5. Guía de Despligue Completa
+
+5.1 Configurar Credenciales de AWS
+
+Para que Serverless cree recursos en tu cuenta AWS, configura tus credenciales. Ejemplos:
+
+Archivo ~/.aws/credentials:
+
+```plaintext
+
+[default]
+aws_access_key_id = TU_AWS_ACCESS_KEY_ID
+aws_secret_access_key = TU_AWS_SECRET_ACCESS_KEY
+
 
 ```
 
 
 
-
-![Texto alternativo](./images/1.png "Estructura archivos")
 
