@@ -98,30 +98,31 @@ La arquitectura propuesta se basa en los siguientes componentes de AWS:
 
 1.- Python 3.9
 
-    Uso de boto3 para integrar con AWS.
-    Facilidad para escribir y testear funciones Lambda.
+Uso de boto3 para integrar con AWS.
+Facilidad para escribir y testear funciones Lambda.
 
 2.- Serverless Framework
 
-    Permite definir la infraestructura (API Gateway, DynamoDB, SQS, IAM, etc.) en un solo archivo (serverless.yml).
-    Simplifica el despliegue a AWS.
+Permite definir la infraestructura (API Gateway, DynamoDB, SQS, IAM, etc.) en un solo archivo (serverless.yml).
+Simplifica el despliegue a AWS.
 
 3.- DynamoDB
 
-    Base de datos NoSQL con escalado automático y modelo de pago por solicitud.
-    Tablas flexibles para almacenar la información de las órdenes.
+Base de datos NoSQL con escalado automático y modelo de pago por solicitud.
+Tablas flexibles para almacenar la información de las órdenes.
 
 4.-  SQS
 
-    Se crea una cola por estado para un manejo desacoplado y claro.
-    Cada Lambda procesadora maneja un estado diferente.
+Se crea una cola por estado para un manejo desacoplado y claro.
+Cada Lambda procesadora maneja un estado diferente.
 
 5.- Separación de Funciones
 
-    Una función Lambda para la parte de API (crear / actualizar órdenes).
-    Varias funciones Lambda para el consumo de las colas (cada estado se procesa por separado).
+Una función Lambda para la parte de API (crear / actualizar órdenes).
+Varias funciones Lambda para el consumo de las colas (cada estado se procesa por separado).
 
 
+### 4. Estructura de Archivos
 
- ![Texto alternativo](./images/1.png "Título emergente (opcional)")
+    ![Texto alternativo](./images/1.png "Título emergente (opcional)")
 
