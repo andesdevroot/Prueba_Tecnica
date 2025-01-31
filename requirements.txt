@@ -1,0 +1,4 @@
+# Creado por César Rivas 31/01/2025
+boto3
+pytest
+

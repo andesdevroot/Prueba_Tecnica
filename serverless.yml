@@ -1,0 +1,111 @@
+# Creado por: César Rivas 
+# Definición de la infraestructura y funciones de AWS Lambda
+
+service: technical-test-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: dev
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource: "*"
+
+functions:
+  # Función que maneja la creación/actualización de órdenes
+  createUpdateOrder:
+    handler: handler.create_update_order
+    events:
+      - http:
+          path: orders
+          method: post
+      - http:
+          path: orders/{orderId}
+          method: put
+
+  # Función que procesa órdenes con estado "received"
+  processOrderReceived:
+    handler: handler.process_order_received
+    events:
+      - sqs:
+          arn: 
+            Fn::GetAtt: [ ReceivedQueue, Arn ]
+
+  # Función que procesa órdenes con estado "inprocess"
+  processOrderInProcess:
+    handler: handler.process_order_in_process
+    events:
+      - sqs:
+          arn: 
+            Fn::GetAtt: [ InProcessQueue, Arn ]
+
+  # Función que procesa órdenes con estado "completed"
+  processOrderCompleted:
+    handler: handler.process_order_completed
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CompletedQueue, Arn ]
+
+  # Función que procesa órdenes con estado "canceled"
+  processOrderCanceled:
+    handler: handler.process_order_canceled
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CanceledQueue, Arn ]
+
+resources:
+  Resources:
+    # Tabla DynamoDB para almacenar las órdenes
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Orders
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    # Colas SQS para cada estado
+    ReceivedQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: received-queue
+
+    InProcessQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: inprocess-queue
+
+    CompletedQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: completed-queue
+
+    CanceledQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: canceled-queue
+
+
+# Notas 1: Se pueden ajustar los nombres de las tablas y colas según sea necesario
+# Notas 2: Se pueden ajustar las regiones, nombres de recursos, etc. según sea necesario
+# Notas 3: Tambien se puede usar colas FIFOS si se necesita garantizar el orden mas estricto
+
