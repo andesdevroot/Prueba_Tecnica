@@ -124,5 +124,7 @@ Varias funciones Lambda para el consumo de las colas (cada estado se procesa por
 
 ### 4. Estructura de Archivos
 
-    ![Texto alternativo](./images/1.png "Título emergente (opcional)")
+Aquí se muestra el ejemplo de código en imagen:
+
+![Estructua archivos](./images/1.png "Vista archivos")
 
