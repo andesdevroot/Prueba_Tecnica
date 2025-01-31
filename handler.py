@@ -87,7 +87,7 @@ def get_queue_url_by_status(status):
     Ajusta estas URLs tras desplegar o usa variables de entorno si lo prefieres.
     """
     # NOTA: Al hacer `serverless deploy`, en la consola aparecerán
-    # Se uso hardcode para simplificar el ejemplo del esta pruebas tecnica
+    # Se uso hardcode para simplificar el ejemplo de esta prueba técnica
     urls = {
         "received":    "https://sqs.us-east-1.amazonaws.com/123456789012/received-queue",
         "inprocess":   "https://sqs.us-east-1.amazonaws.com/123456789012/inprocess-queue",
@@ -154,3 +154,4 @@ def process_order_canceled(event, context):
 # se insertan los datos en la tabla y se envían mensajes a SQS (en un ambiente de test real).
 
 # Nota 3: Se podrian añadir pruebas de rendimiento para verificar que el sistema escale correctamente.
+

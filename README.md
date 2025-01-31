@@ -173,6 +173,50 @@ serverless --version
 ```plaintext
 serverless deploy
 ```
+3.Al finalizar, tendremos:
+- Tabla DynamoDB Orders.
+- Colas SQS (received, inprocess, completed, canceled).
+- Varias Lambda (crear/actualizar y procesadoras).
+- Endpoints de API Gateway (POST /orders, PUT /orders/{orderId}).
+
+5.4 Actualizar las URLs de las Colas SQS
+
+Tras el despliegue, la consola de Serverless (o CloudFormation) mostrará las URLs reales de las colas. En handler.py, la función get_queue_url_by_status usa URLs de ejemplo. Reemplázalas por las de AWS del proyecto:
+```plaintext
+def get_queue_url_by_status(status):
+    urls = {
+        "received":  "https://sqs.us-east-1.amazonaws.com/123456789012/received-queue",
+        "inprocess": "https://sqs.us-east-1.amazonaws.com/123456789012/inprocess-queue",
+        "completed": "https://sqs.us-east-1.amazonaws.com/123456789012/completed-queue",
+        "canceled":  "https://sqs.us-east-1.amazonaws.com/123456789012/canceled-queue"
+    }
+    return urls.get(status.lower())
+```
+5.5 (Opcional) Ejecución Local (Offline)
+
+Puedes usar serverless-offline para probar la API localmente:
+```plaintext
+npm install --save-dev serverless-offline
+```
+Agrega en serverless.yml:
+```plaintext
+plugins:
+  - serverless-offline
+```
+Y luego:
+```plaintext
+serverless offline
+```
+Tendrás la API en http://localhost:3000.
+
+  Nota: Para simular DynamoDB y SQS localmente, puedes usar LocalStack o la librería moto
+
+
+
+
+
+
+
 
 
 
