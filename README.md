@@ -169,6 +169,12 @@ Asegúrate de tener Python 3.9 o compatible.
 ```plaintext
 serverless --version
 ```
+2.Despliega la infraestructura y funciones:
+```plaintext
+serverless deploy
+```
+
+
 
 
 
