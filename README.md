@@ -142,7 +142,7 @@ technical-test
 
 Para que Serverless cree recursos en tu cuenta AWS, configura tus credenciales. Ejemplos:
 
-Archivo ~/.aws/credentials:
+- Archivo ~/.aws/credentials:
 
 ```plaintext
 
@@ -152,7 +152,17 @@ aws_secret_access_key = TU_AWS_SECRET_ACCESS_KEY
 
 
 ```
+- Variables de entorno: AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY.
+- Command line con Serverless:
 
+```plaintext
+
+serverless config credentials \
+  --provider aws \
+  --key TU_AWS_ACCESS_KEY_ID \
+  --secret TU_AWS_SECRET_ACCESS_KEY
+  
+```
 
 
 
