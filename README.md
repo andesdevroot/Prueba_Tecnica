@@ -121,8 +121,23 @@ Cada Lambda procesadora maneja un estado diferente.
 Una función Lambda para la parte de API (crear / actualizar órdenes).
 Varias funciones Lambda para el consumo de las colas (cada estado se procesa por separado).
 
+### 3. Decisiones Técnicas
+
+```plaintext
+
+technical-test
+├── serverless.yml       # Despliegue (API Gateway, DynamoDB, SQS, Lambdas)
+├── handler.py           # Funciones Lambda (crear/actualizar y procesar)
+├── requirements.txt     # Dependencias de Python (boto3, pytest, etc.)
+├── README.md            # Este documento
+└── tests
+    └── test_handler.py  # Pruebas unitarias
+
+
+```
 
 
 
- ![Texto alternativo](./images/1.png "Título emergente (opcional)")
+
+![Texto alternativo](./images/1.png "Estructura archivos")
 
