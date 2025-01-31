@@ -133,7 +133,7 @@ technical-test
 └── tests
     └── test_handler.py  # Pruebas unitarias
 ```
-### 5. Guía de Despligue Completa
+### 5. Guía de Despliegue Completa
 
 5.1 Configurar Credenciales de AWS
 
@@ -150,6 +150,7 @@ aws_secret_access_key = TU_AWS_SECRET_ACCESS_KEY
 - Command line con Serverless:
 
 ```plaintext
+```bash
 serverless config credentials \
   --provider aws \
   --key TU_AWS_ACCESS_KEY_ID \
@@ -209,7 +210,60 @@ serverless offline
 ```
 Tendrás la API en http://localhost:3000.
 
-  Nota: Para simular DynamoDB y SQS localmente, puedes usar LocalStack o la librería moto
+  Nota: Para simular DynamoDB y SQS localmente, se puede usar LocalStack o la librería moto
+
+### 6. Uso de la API
+
+Al finalizar el despliegue, Serverless mostrará la URL base de la API Gateway. Por ejemplo:
+```plaintext
+https://abcdefghij.execute-api.us-east-1.amazonaws.com/dev
+```
+6.1  Crear una Orden (POST)
+- Endpoint: POST /orders
+- Ejemplo:
+```plaintext
+curl -X POST \
+  https://abcdefghij.execute-api.us-east-1.amazonaws.com/dev/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+        "orderId": "ORD-001",
+        "status": "received",
+        "description": "Mantenimiento básico",
+        "registerDate": "2025-01-31T08:00:00Z"
+      }'
+```
+Respuesta:
+```plaintext
+{
+  "message": "Order processed successfully"
+}
+```
+6.2 Actualizar una Orden (PUT)
+
+- Endpoint: PUT /orders/{orderId}
+- Ejemplo:
+```plaintext
+curl -X PUT \
+  https://abcdefghij.execute-api.us-east-1.amazonaws.com/dev/orders/ORD-001 \
+  -H "Content-Type: application/json" \
+  -d '{
+        "orderId": "ORD-001",
+        "status": "canceled",
+        "description": "Cliente se retracta",
+        "reasonForCancellation": "Motivo X"
+      }'
+```
+Respuesta:
+```plaintext
+{
+  "message": "Order processed successfully"
+}
+```
+### 6. Pruebas(Tests)
+
+
+
+
 
 
 
