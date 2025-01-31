@@ -92,7 +92,6 @@ La arquitectura propuesta se basa en los siguientes componentes de AWS:
 │ Lambdas procesadoras  │
 │ (una por estado)      │
 └───────────────────────┘
-
 ```
 ### 3. Decisiones Técnicas
 
@@ -126,7 +125,6 @@ Varias funciones Lambda para el consumo de las colas (cada estado se procesa por
 Carpeta raíz del proyecto:-
 
 ```plaintext
-
 technical-test
 ├── serverless.yml       # Despliegue (API Gateway, DynamoDB, SQS, Lambdas)
 ├── handler.py           # Funciones Lambda (crear/actualizar y procesar)
@@ -134,7 +132,6 @@ technical-test
 ├── README.md            # Este documento
 └── tests
     └── test_handler.py  # Pruebas unitarias
-
 ```
 ### 5. Guía de Despligue Completa
 
@@ -145,24 +142,34 @@ Para que Serverless cree recursos en tu cuenta AWS, configura tus credenciales. 
 - Archivo ~/.aws/credentials:
 
 ```plaintext
-
 [default]
 aws_access_key_id = TU_AWS_ACCESS_KEY_ID
 aws_secret_access_key = TU_AWS_SECRET_ACCESS_KEY
-
-
 ```
 - Variables de entorno: AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY.
 - Command line con Serverless:
 
 ```plaintext
-
 serverless config credentials \
   --provider aws \
   --key TU_AWS_ACCESS_KEY_ID \
   --secret TU_AWS_SECRET_ACCESS_KEY
-  
 ```
+5.2 Instalar Dependencias (Python)
+
+Desde la carpeta raíz del proyecto:
+```plaintext
+pip install -r requirements.txt
+```
+Asegúrate de tener Python 3.9 o compatible.
+
+5.3 Desplegar con Serverless Framework
+
+1.Verifica si Serverless está instalado:
+```plaintext
+serverless --version
+```
+
 
 
 
