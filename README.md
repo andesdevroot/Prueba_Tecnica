@@ -66,7 +66,7 @@ La arquitectura propuesta se basa en los siguientes componentes de AWS:
 4. **Amazon SQS**: Colas independientes para cada estado de la orden.  
 5. **AWS Lambda** (Funciones de procesamiento): Al llegar un mensaje a cada cola, se activa automáticamente la Lambda correspondiente para ese estado.
 
-### 2.1 Diagrama
+### 3. Diagrama
 
 ```plaintext
 ┌───────────────┐
@@ -93,7 +93,7 @@ La arquitectura propuesta se basa en los siguientes componentes de AWS:
 │ (una por estado)      │
 └───────────────────────┘
 ```
-### 3. Decisiones Técnicas
+### 4. Decisiones Técnicas
 
 1.- Python 3.9
 
@@ -120,7 +120,7 @@ Cada Lambda procesadora maneja un estado diferente.
 Una función Lambda para la parte de API (crear / actualizar órdenes).
 Varias funciones Lambda para el consumo de las colas (cada estado se procesa por separado).
 
-### 4. Estructura de Archivos
+### 5. Estructura de Archivos
 
 Carpeta raíz del proyecto:-
 
@@ -133,9 +133,9 @@ technical-test
 └── tests
     └── test_handler.py  # Pruebas unitarias
 ```
-### 5. Guía de Despliegue Completa
+### 6. Guía de Despliegue Completa
 
-5.1 Configurar Credenciales de AWS
+6.1 Configurar Credenciales de AWS
 
 Para que Serverless cree recursos en tu cuenta AWS, configura tus credenciales. Ejemplos:
 
@@ -155,7 +155,7 @@ serverless config credentials \
   --key TU_AWS_ACCESS_KEY_ID \
   --secret TU_AWS_SECRET_ACCESS_KEY
 ```
-5.2 Instalar Dependencias (Python)
+6.2 Instalar Dependencias (Python)
 
 Desde la carpeta raíz del proyecto:
 ```plaintext
@@ -163,7 +163,7 @@ pip install -r requirements.txt
 ```
 Asegúrate de tener Python 3.9 o compatible.
 
-5.3 Desplegar con Serverless Framework
+6.3 Desplegar con Serverless Framework
 
 1.Verifica si Serverless está instalado:
 ```plaintext
@@ -179,7 +179,7 @@ serverless deploy
 - Varias Lambda (crear/actualizar y procesadoras).
 - Endpoints de API Gateway (POST /orders, PUT /orders/{orderId}).
 
-5.4 Actualizar las URLs de las Colas SQS
+6.4 Actualizar las URLs de las Colas SQS
 
 Tras el despliegue, la consola de Serverless (o CloudFormation) mostrará las URLs reales de las colas. En handler.py, la función get_queue_url_by_status usa URLs de ejemplo. Reemplázalas por las de AWS del proyecto:
 ```plaintext
@@ -258,7 +258,7 @@ Respuesta:
   "message": "Order processed successfully"
 }
 ```
-### 6. Pruebas(Tests)
+### 7. Pruebas(Tests)
 
 Las pruebas unitarias se encuentran en el directorio tests/. Para ejecutarlas:
 ```plaintext
@@ -282,6 +282,21 @@ def test_create_order_ok():
     body = json.loads(response["body"])
     assert body["message"] == "Order processed successfully"
 ```
+### 8. Escalabilidad y Mejoras Futuras
+
+1. Colas FIFO
+
+   - Si se requiere garantizar el orden de llegada, conviene usar colas FIFO (.fifo).
+
+2. AWS Step Functions
+   - Para flujos más complejos y orquestación de múltiples pasos antes de completar/cancelar.
+3. Dead Letter Queue (DLQ)
+   - Colas de respaldo para manejar mensajes con errores tras varios reintentos.
+4. Monitoreo y Alertas
+   - Usar CloudWatch para logs/métricas y crear alarmas (ej. fallos en Lambda, cola atascada).
+5. Notificaciones
+   - Integrar con Amazon SNS o EventBridge para avisar a otros sistemas cuando cambien los estados.
+    
 
 
 
