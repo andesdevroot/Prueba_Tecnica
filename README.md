@@ -150,7 +150,6 @@ aws_secret_access_key = TU_AWS_SECRET_ACCESS_KEY
 - Command line con Serverless:
 
 ```plaintext
-```bash
 serverless config credentials \
   --provider aws \
   --key TU_AWS_ACCESS_KEY_ID \
@@ -260,6 +259,31 @@ Respuesta:
 }
 ```
 ### 6. Pruebas(Tests)
+
+Las pruebas unitarias se encuentran en el directorio tests/. Para ejecutarlas:
+```plaintext
+pytest
+```
+Ejemplo en tests/test_handler.py:
+```plaintext
+import json
+from handler import create_update_order
+
+def test_create_order_ok():
+    event = {
+        "body": json.dumps({
+            "orderId": "test123",
+            "status": "received",
+            "description": "Testing order creation"
+        })
+    }
+    response = create_update_order(event, {})
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert body["message"] == "Order processed successfully"
+```
+
+
 
 
 
