@@ -552,6 +552,43 @@ def test_create_order_missing_field():
     body = json.loads(response["body"])
     assert "Missing required field: orderId" in body["error"]
 ```
+### 10. Creación de Repositorio en GitHub (Guía)
+Para compartir tu código:
+
+1. Crea un nuevo repositorio en GitHub.
+2. En tu carpeta local del proyecto, inicializa (si no lo has hecho) y haz commit:
+```plaintext
+git init
+git add .
+git commit -m "Initial commit - Serverless solution"
+```
+3. Agrega el repositorio remoto (ej. origin):
+```plaintext
+git remote add origin https://github.com/TuUsuario/technical-test-serverless.git
+```
+4. Sube tu código (push) a la rama principal:
+```plaintext
+git push -u origin main
+```
+5. Verifica en GitHub que aparezcan todos los archivos (serverless.yml, handler.py, tests/, etc.).
+### 11. Conclusiones
+La presente solución serverless aborda de forma completa la necesidad de procesar órdenes con varios estados:
+- Se capturan las órdenes vía API Gateway, con un endpoint para creación y otro para actualización.
+- Se almacenan en DynamoDB, garantizando un acceso rápido y escalable.
+- Se desacopla el procesamiento según estado mediante SQS, evitando bloqueos y permitiendo una alta concurrencia.
+- Cada cola SQS dispara una Lambda especializada, ofreciendo claridad y responsabilidades delimitadas.
+Esto se integra en un solo proyecto con Serverless Framework, facilitando la gestión de la infraestructura en AWS. 
+Además, se incluyen tests unitarios para verificar la lógica principal y se describen mejoras futuras para manejar casos más complejos, escalabilidad total y monitoreo.
+Se han incluido pruebas unitarias, un README completo con la arquitectura e instrucciones, y ejemplos de cómo mejorar la escalabilidad.
+Con estos componentes, se cumple el requerimiento de la prueba técnica de forma clara y extensible.
+
+¡Gracias por revisar esta prueba!
+Atte.-
+
+César Rivas
+Senior Software Engineer
+
+
 
 
 
