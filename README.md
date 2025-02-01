@@ -296,7 +296,264 @@ def test_create_order_ok():
    - Usar CloudWatch para logs/métricas y crear alarmas (ej. fallos en Lambda, cola atascada).
 5. Notificaciones
    - Integrar con Amazon SNS o EventBridge para avisar a otros sistemas cuando cambien los estados.
-    
+
+### 9. Código Funcional
+A continuación, se muestra todo el código principal del proyecto.
+9.1 serverless.yml
+```plaintext
+service: technical-test-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: dev
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource: "*"
+
+functions:
+  createUpdateOrder:
+    handler: handler.create_update_order
+    events:
+      - http:
+          path: orders
+          method: post
+      - http:
+          path: orders/{orderId}
+          method: put
+
+  processOrderReceived:
+    handler: handler.process_order_received
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ ReceivedQueue, Arn ]
+
+  processOrderInProcess:
+    handler: handler.process_order_in_process
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ InProcessQueue, Arn ]
+
+  processOrderCompleted:
+    handler: handler.process_order_completed
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CompletedQueue, Arn ]
+
+  processOrderCanceled:
+    handler: handler.process_order_canceled
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CanceledQueue, Arn ]
+
+resources:
+  Resources:
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Orders
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    ReceivedQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: received-queue
+
+    InProcessQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: inprocess-queue
+
+    CompletedQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: completed-queue
+
+    CanceledQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: canceled-queue
+```
+9.2 handler.py
+```plaintext
+import json
+import boto3
+from datetime import datetime
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Orders')
+
+sqs_client = boto3.client('sqs')
+
+def create_update_order(event, context):
+    """
+    Lambda que maneja:
+      - POST /orders
+      - PUT /orders/{orderId}
+
+    1) Valida datos de la orden.
+    2) Guarda/actualiza en DynamoDB.
+    3) Envía un mensaje a SQS según el estado.
+    """
+    try:
+        body = json.loads(event.get('body', '{}'))
+    except (TypeError, json.JSONDecodeError):
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid JSON"})
+        }
+
+    required_fields = ["orderId", "status", "description"]
+    for f in required_fields:
+        if f not in body:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": f"Missing required field: {f}"})
+            }
+
+    order_id = body["orderId"]
+    status = body["status"]
+    description = body["description"]
+    register_date = body.get("registerDate", str(datetime.utcnow()))
+    delivery_date = body.get("deliveryDate", "")
+    reason_for_cancellation = body.get("reasonForCancellation", "")
+
+    # Guardar en DynamoDB
+    table.put_item(
+        Item={
+            "orderId": order_id,
+            "status": status,
+            "description": description,
+            "registerDate": register_date,
+            "deliveryDate": delivery_date,
+            "reasonForCancellation": reason_for_cancellation
+        }
+    )
+
+    # Enviar a la cola correspondiente
+    queue_url = get_queue_url_by_status(status)
+    if not queue_url:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": f"Unknown status '{status}'"})
+        }
+
+    message_body = {
+        "orderId": order_id,
+        "status": status
+    }
+
+    sqs_client.send_message(
+        QueueUrl=queue_url,
+        MessageBody=json.dumps(message_body)
+    )
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": "Order processed successfully"})
+    }
+
+def get_queue_url_by_status(status):
+    """
+    Retorna la URL de la cola SQS para el estado dado.
+    Debes actualizarlas con las URLs de tu despliegue.
+    """
+    urls = {
+        "received":  "https://sqs.us-east-1.amazonaws.com/123456789012/received-queue",
+        "inprocess": "https://sqs.us-east-1.amazonaws.com/123456789012/inprocess-queue",
+        "completed": "https://sqs.us-east-1.amazonaws.com/123456789012/completed-queue",
+        "canceled":  "https://sqs.us-east-1.amazonaws.com/123456789012/canceled-queue"
+    }
+    return urls.get(status.lower())
+
+def process_order_received(event, context):
+    for record in event["Records"]:
+        body = json.loads(record["body"])
+        order_id = body.get("orderId")
+        print(f"Processing 'received' order: {order_id}")
+        # Lógica adicional para órdenes en estado 'received'
+    return
+
+def process_order_in_process(event, context):
+    for record in event["Records"]:
+        body = json.loads(record["body"])
+        order_id = body.get("orderId")
+        print(f"Processing 'inprocess' order: {order_id}")
+        # Lógica adicional para órdenes en estado 'inprocess'
+    return
+
+def process_order_completed(event, context):
+    for record in event["Records"]:
+        body = json.loads(record["body"])
+        order_id = body.get("orderId")
+        print(f"Processing 'completed' order: {order_id}")
+        # Lógica adicional para órdenes en estado 'completed'
+    return
+
+def process_order_canceled(event, context):
+    for record in event["Records"]:
+        body = json.loads(record["body"])
+        order_id = body.get("orderId")
+        print(f"Processing 'canceled' order: {order_id}")
+        # Lógica adicional para órdenes en estado 'canceled'
+    return
+```
+9.3 tests/test_handler.py
+```plaintext
+import json
+from handler import create_update_order
+
+def test_create_order_ok():
+    event = {
+        "body": json.dumps({
+            "orderId": "test123",
+            "status": "received",
+            "description": "Testing order creation"
+        })
+    }
+    response = create_update_order(event, {})
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert body["message"] == "Order processed successfully"
+
+def test_create_order_missing_field():
+    event = {
+        "body": json.dumps({
+            "status": "received",
+            "description": "But missing orderId!"
+        })
+    }
+    response = create_update_order(event, {})
+    assert response["statusCode"] == 400
+    body = json.loads(response["body"])
+    assert "Missing required field: orderId" in body["error"]
+```
+
+
+
 
 
 
